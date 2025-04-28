@@ -7,6 +7,13 @@ import * as hbs from 'hbs';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // Habilitar CORS para permitir requisições de qualquer origem
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   const viewsPath = join(__dirname, '..', 'views');
 
   // Configurar diretórios estáticos e de views
