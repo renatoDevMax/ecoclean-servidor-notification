@@ -94,6 +94,10 @@
           <i class='fas fa-address-book'></i>
           Contatos WhatsApp
         </button>
+        <button class='nav-button'>
+          <i class='fas fa-search'></i>
+          Buscar Id
+        </button>
       </div>
     </div>
     <div class='main-content'>
@@ -239,6 +243,62 @@
           <div id='contatos-lista' class='contatos-scroll'>
             <!-- Lista de contatos será carregada aqui via JavaScript -->
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adicionando o componente para buscar por ID -->
+    <div id='buscar-id-panel' class='content-panel' style='display: none;'>
+      <div class='panel-header'>
+        <h2>Buscar Cliente por ID</h2>
+      </div>
+      <div class='panel-content'>
+        <form id='buscar-id-form' class='form-container'>
+          <div class='form-group'>
+            <label for='id-input'>ID do Cliente:</label>
+            <input
+              type='text'
+              id='id-input'
+              class='form-input'
+              placeholder='Digite o ID do cliente'
+              required
+            />
+          </div>
+
+          <button type='submit' class='form-button'>
+            <i class='fas fa-search'></i>
+            Buscar Cliente
+          </button>
+        </form>
+
+        <div
+          id='resultado-busca'
+          class='resultado-container'
+          style='display: none;'
+        >
+          <div class='panel-header resultado-header'>
+            <h3>Resultado da Busca</h3>
+          </div>
+          <div id='cliente-info' class='cliente-info'>
+            <!-- As informações do cliente serão exibidas aqui -->
+          </div>
+        </div>
+
+        <div
+          id='carregando-busca'
+          class='loading-container'
+          style='display: none;'
+        >
+          <div class='loading-spinner'></div>
+          <p>Buscando cliente...</p>
+        </div>
+
+        <div id='erro-busca' class='status-container' style='display: none;'>
+          <div class='status-icon error'>
+            <i class='fas fa-times-circle'></i>
+          </div>
+          <h3>Cliente não encontrado</h3>
+          <p>Não foi possível encontrar um cliente com o ID informado.</p>
         </div>
       </div>
     </div>
@@ -531,11 +591,173 @@
         color: #7f8c8d;
         font-size: 1.1rem;
       }
+
+      /* Estilos específicos para o resultado da busca */
+      .resultado-container {
+        margin-top: 2rem;
+        border: 1px solid #f0f0f0;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .resultado-header {
+        background-color: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .resultado-header h3 {
+        font-size: 1.2rem;
+        margin: 0;
+      }
+
+      .cliente-info {
+        padding: 1.5rem;
+        max-height: 500px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #3498db #f0f0f0;
+      }
+
+      .cliente-info::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .cliente-info::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 10px;
+      }
+
+      .cliente-info::-webkit-scrollbar-thumb {
+        background-color: #3498db;
+        border-radius: 10px;
+      }
+
+      .info-item {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+      }
+
+      .info-value {
+        color: #7f8c8d;
+      }
+
+      /* Estilos para as seções de cliente e compras */
+      .cliente-section,
+      .compras-section {
+        margin-bottom: 2rem;
+      }
+
+      .compras-section {
+        border-top: 1px solid #f0f0f0;
+        padding-top: 1.5rem;
+      }
+
+      .section-title {
+        font-size: 1.4rem;
+        color: #2c3e50;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3498db;
+        display: inline-block;
+      }
+
+      .nenhuma-compra {
+        padding: 1rem;
+        color: #7f8c8d;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      /* Estilos para tabela de compras */
+      .compras-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+      }
+
+      .compras-table th,
+      .compras-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border: 1px solid #e0e0e0;
+      }
+
+      .compras-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .compras-table tr:nth-child(even) {
+        background-color: #f5f9ff;
+      }
+
+      .compras-table tr:hover {
+        background-color: #e3f2fd;
+      }
+
+      @media (max-width: 768px) {
+        .compras-table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+      }
+
+      /* Estilos para exibição de arrays e objetos */
+      .lista-array {
+        margin: 0;
+        padding-left: 1.5rem;
+      }
+
+      .lista-array li {
+        margin-bottom: 0.5rem;
+        color: #3498db;
+      }
+
+      .lista-array li:last-child {
+        margin-bottom: 0;
+      }
+
+      .json-value {
+        font-family: monospace;
+        white-space: pre-wrap;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #2c3e50;
+        overflow-x: auto;
+      }
+
+      /* Remove a senha das informações exibidas */
+      .info-item:has(.info-label:contains('Senha')) {
+        display: none;
+      }
     </style>
 
     <!-- Incluindo os arquivos JavaScript externos -->
     <script src='/js/verificar-whatsapp.js'></script>
     <script src='/js/mensagem-whatsapp.js'></script>
     <script src='/js/contatos-whatsapp.js'></script>
+    <script src='/js/buscar-id.js'></script>
   </body>
 </html>
