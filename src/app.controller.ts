@@ -79,18 +79,26 @@ export class AppController {
       const clientesFiliados = await connection
         .collection('clienteFiliado')
         .find({})
+        .project({ _id: 1, nome: 1 })
         .toArray();
 
       // Buscar todos os clientes matriz
       const clientesMatriz = await connection
         .collection('clienteMatriz')
         .find({})
+        .project({ _id: 1, nome: 1 })
         .toArray();
 
-      // Retornar apenas o total
-      return {
-        total: clientesFiliados.length + clientesMatriz.length,
-      };
+      // Combinar as duas listas em uma única lista de clientes
+      const todosClientes = [...clientesFiliados, ...clientesMatriz];
+
+      // Converter ObjectId para string nos objetos retornados
+      const clientesFormatados = todosClientes.map((cliente) => ({
+        id: cliente._id.toString(),
+        nome: cliente.nome,
+      }));
+
+      return clientesFormatados;
     } catch (error) {
       console.error('Erro ao buscar todos os clientes:', error);
       throw new Error('Erro ao buscar todos os clientes');
