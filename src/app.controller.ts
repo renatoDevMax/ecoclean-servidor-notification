@@ -222,7 +222,7 @@ export class AppController {
       try {
         objectId = new ObjectId(id);
       } catch (error) {
-        throw new NotFoundException('ID de cliente inválido');
+        return { credResgate: false };
       }
 
       const connection = this.databaseService.getConnection();
@@ -244,7 +244,7 @@ export class AppController {
         if (clienteMatriz) {
           nomeCliente = clienteMatriz.nome;
         } else {
-          throw new NotFoundException('Cliente não encontrado');
+          return { credResgate: false };
         }
       }
 
@@ -255,10 +255,7 @@ export class AppController {
         .toArray();
 
       if (!compras || compras.length === 0) {
-        return {
-          message: 'Nenhuma compra disponível para resgate',
-          comprasAtualizadas: 0,
-        };
+        return { credResgate: false };
       }
 
       const agora = new Date();
@@ -278,10 +275,7 @@ export class AppController {
       });
 
       if (comprasParaAtualizar.length === 0) {
-        return {
-          message: 'Nenhuma compra atende aos critérios de tempo para resgate',
-          comprasAtualizadas: 0,
-        };
+        return { credResgate: false };
       }
 
       // Atualizar status para "resgatado"
@@ -293,17 +287,11 @@ export class AppController {
           { $set: { statusCred: 'resgatado' } },
         );
 
-      return {
-        message: 'Compras resgatadas com sucesso',
-        comprasAtualizadas: resultado.modifiedCount,
-        detalhes: comprasParaAtualizar,
-      };
+      // Retornar sucesso se pelo menos uma compra foi atualizada
+      return { credResgate: resultado.modifiedCount > 0 };
     } catch (error) {
       console.error('Erro ao resgatar compras:', error);
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new Error('Erro ao processar o resgate de compras');
+      return { credResgate: false };
     }
   }
 
