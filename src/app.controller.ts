@@ -214,15 +214,44 @@ export class AppController {
     }
   }
 
-  @Get('resgatar/:nome')
-  async resgatarCompras(@Param('nome') nome: string) {
+  @Get('resgatar/:id')
+  async resgatarCompras(@Param('id') id: string) {
     try {
+      // Validar se o ID é válido para o MongoDB
+      let objectId: ObjectId;
+      try {
+        objectId = new ObjectId(id);
+      } catch (error) {
+        throw new NotFoundException('ID de cliente inválido');
+      }
+
       const connection = this.databaseService.getConnection();
+
+      // Primeiro, buscar o cliente pelo ID
+      const clienteFiliado = await connection
+        .collection('clienteFiliado')
+        .findOne({ _id: objectId });
+
+      let nomeCliente: string;
+
+      if (clienteFiliado) {
+        nomeCliente = clienteFiliado.nome;
+      } else {
+        const clienteMatriz = await connection
+          .collection('clienteMatriz')
+          .findOne({ _id: objectId });
+
+        if (clienteMatriz) {
+          nomeCliente = clienteMatriz.nome;
+        } else {
+          throw new NotFoundException('Cliente não encontrado');
+        }
+      }
 
       // Buscar todas as compras do cliente com status "aberto"
       const compras = await connection
         .collection('comprasFidelidade')
-        .find({ nome: nome, statusCred: 'aberto' })
+        .find({ nome: nomeCliente, statusCred: 'aberto' })
         .toArray();
 
       if (!compras || compras.length === 0) {
@@ -271,6 +300,9 @@ export class AppController {
       };
     } catch (error) {
       console.error('Erro ao resgatar compras:', error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new Error('Erro ao processar o resgate de compras');
     }
   }
